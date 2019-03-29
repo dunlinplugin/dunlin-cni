@@ -1,13 +1,20 @@
 #/bin/bash 
 
-#install and set up open vswitch
-#apt update 
-#apt install -y openvswitch-switch
-
-#get default interface
-DEV=`ip route show | head -1 | sed 's/.*dev //' | sed 's/ .*//'`
-#get last octet of the IP address of the default interface
-LASTOCTET=`ip address show dev $DEV | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
+if [ -z "$IPOFIFACE" ]
+then
+    IPOFIFACE=default
+fi
+if [ "$IPOFIFACE" == "default" ]; then
+    #get default interface
+    DEV=`ip route show | head -1 | sed 's/.*dev //' | sed 's/ .*//'`
+    #get last octet of the IP address of the default interface
+    LASTOCTET=`ip address show dev $DEV | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
+else
+    #get default interface
+    CLASSC=`echo $IPOFIFACE | sed 's/\.[0-9]*$//'`
+    #get last octet of the IP address of the default interface
+    LASTOCTET=`ip address show | grep $CLASSC | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
+fi
 #Hexa numbers
 HEX=`printf "0%x" $LASTOCTET`
 if [ $LASTOCTET -ge 16 ]; then HEX=`printf "%x" $LASTOCTET`; fi
