@@ -1,20 +1,19 @@
 #/bin/bash 
 
-if [ -z "$IPOFIFACE" ]
+#get class C IP prefix from env
+CLASSC=`echo $IPOFIFACE | sed 's/\.[0-9]*$//'`
+#get last octet of the IP address of the default interface
+LASTOCTET=`ip address show | grep $CLASSC | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
+
+#fallback to default interface if LASTOCTET is empty
+if [ -z "$LASTOCTET" ]
 then
-    IPOFIFACE=default
-fi
-if [ "$IPOFIFACE" == "default" ]; then
     #get default interface
     DEV=`ip route show | head -1 | sed 's/.*dev //' | sed 's/ .*//'`
     #get last octet of the IP address of the default interface
     LASTOCTET=`ip address show dev $DEV | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
-else
-    #get default interface
-    CLASSC=`echo $IPOFIFACE | sed 's/\.[0-9]*$//'`
-    #get last octet of the IP address of the default interface
-    LASTOCTET=`ip address show | grep $CLASSC | grep 'inet ' | head -1 | sed 's/.*inet //' | sed 's/\/.*//' | sed 's/.*\.//'`
 fi
+
 #Hexa numbers
 HEX=`printf "0%x" $LASTOCTET`
 if [ $LASTOCTET -ge 16 ]; then HEX=`printf "%x" $LASTOCTET`; fi
