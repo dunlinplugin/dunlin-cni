@@ -6,8 +6,8 @@ import (
 	"version"
 	"flag"
 	"fmt"
-    "encoding/json"
-    "strings"
+	"encoding/json"
+	"strings"
 	"os/exec"
 	"log"
 	"io"
@@ -128,7 +128,7 @@ func set_up_port_inside_container(port string, pid string, iface string, ip stri
 	cmd.Run()
 	cmd = exec.Command("ip", "netns", "exec", pid, "ip", "route", "add", "default", "via", gw)
 	cmd.Run()
-	cmd = exec.Command("ip", "netns", "exec", pid, "arp", "-s", gw, ip2mac(gw))
+	cmd = exec.Command("ip", "netns", "exec", pid, "ip", "neigh", "add", gw, "lladdr", ip2mac(gw), "dev", iface, "nud", "permanent")
 	cmd.Run()
 }
 
